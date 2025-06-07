@@ -1,4 +1,14 @@
-from scipy.optimize.optimize import MemoizeJac
+#from scipy.optimize.optimize import MemoizeJac
+from scipy.optimize import minimize
+
+def objective_function(x):
+    # Define your objective function here
+    return x[0]**2 + x[1]**2
+
+initial_guess = [1.0, 1.0]
+
+result = minimize(objective_function, initial_guess, method='BFGS', jac=False)
+
 import numpy as np
 from scipy.optimize import fmin_cg
 from scipy.optimize.lbfgsb import fmin_l_bfgs_b
