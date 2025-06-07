@@ -1,4 +1,4 @@
-from scipy.optimize.optimize import MemoizeJac
+#from scipy.optimize.optimize import MemoizeJac
 import numpy as np
 from scipy.optimize import fmin_cg
 from scipy.optimize.lbfgsb import fmin_l_bfgs_b
@@ -8,6 +8,31 @@ from PyFWI.wave_propagation import WavePropagator as Wave
 from PyFWI.fwi_tools import Regularization
 import PyFWI.fwi_tools as tools
 from PyFWI.processing import prepare_residual
+import numpy as np
+
+class MemoizeJac:
+    """Decorator that caches the return values of a function returning (fun, grad) each time it is called."""
+    def __init__(self, fun):
+        self.fun = fun
+        self.jac = None
+        self._value = None
+        self.x = None
+
+    def _compute_if_needed(self, x, *args):
+        if self.x is None or not np.all(x == self.x) or self._value is None or self.jac is None:
+            self.x = np.asarray(x).copy()
+            fg = self.fun(x, *args)
+            self._value = fg[0]
+            self.jac = fg[1]
+
+    def __call__(self, x, *args):
+        self._compute_if_needed(x, *args)
+        return self._value
+
+    def derivative(self, x, *args):
+        self._compute_if_needed(x, *args)
+        return self.jac
+
 
 class FWI(Wave):
     """
